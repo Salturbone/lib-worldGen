@@ -1,6 +1,7 @@
 package me.salturbone.rwg;
 
 import java.io.File;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -12,6 +13,8 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
+
+    public static Random random = new Random();
 
     public void onEnable() {
     }
@@ -43,8 +46,20 @@ public class Main extends JavaPlugin {
             p.teleport(world.getSpawnLocation());
             return true;
         }
+        long seed = 1l;
+        if (args.length >= 1) {
+            try {
+                seed = Long.valueOf(args[0]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage("long gir tşk");
+            }
+        } else {
+            seed = random.nextLong();
+        }
         WorldCreator wc = new WorldCreator("DeliYerler");
         wc.generator(new CCGen());
+        wc.seed(seed);
+        Bukkit.broadcastMessage(wc.seed() + "");
         getServer().createWorld(wc);
         sender.sendMessage("Yaratması lazım fln");
         return true;
