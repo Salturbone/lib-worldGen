@@ -4,3 +4,5 @@ main: me.salturbone.rwg.Main
 version: 0.1
 api-version: 1.12
 load: startup
+commands:
+  qadrgen:
