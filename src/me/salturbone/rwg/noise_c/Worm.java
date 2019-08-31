@@ -2,6 +2,7 @@ package me.salturbone.rwg.noise_c;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -22,6 +23,7 @@ public class Worm {
     public double radius;
     public double twistiness = 1;
     public List<WormSegment> segments = new ArrayList<WormSegment>();
+    public double yMultiplier = 0.1;
 
     public Worm(Location start) {
         headPos = start.clone();
@@ -41,16 +43,25 @@ public class Worm {
     }
 
     public void generate(int segmentCount) {
-        for (int i = 0; i < segmentCount; i++)
+        for (int i = 0; i < segmentCount; i++) {
             addSegment();
+        }
+
     }
 
     public void addSegment() {
         segmentCount++;
         WormSegment nSegment = getNextSegment();
+
         segments.add(nSegment);
-        headPos.add(nSegment.offset);
-        noisePos.add(nSegment.offset.clone().multiply(twistiness));
+        headPos = headPos.add(nSegment.offset);
+        noisePos = noisePos.add(nSegment.offset.clone().multiply(twistiness));
+        if (segments.size() > 2) {
+            Location lastEnd = segments.get(segments.size() - 2).end();
+            Location newEnd = nSegment.end();
+            Bukkit.broadcastMessage(newEnd.subtract(lastEnd).toVector().length() + "");
+        }
+
     }
 
     public List<WormSegment> getSegments() {
@@ -58,11 +69,11 @@ public class Worm {
     }
 
     public double getXZNoise() {
-        return noise.getValue(noisePos.getX(), 500, noisePos.getZ());
+        return noise.getValue(noisePos.getX(), noisePos.getY() + 500, noisePos.getZ());
     }
 
     public double getYNoise() {
-        return noise.getValue(noisePos.getX(), 0, noisePos.getZ());
+        return noise.getValue(noisePos.getX(), noisePos.getY(), noisePos.getZ());
     }
 
     public WormSegment getNextSegment() {
@@ -70,14 +81,18 @@ public class Worm {
         double yNoiseValue = getYNoise();
         Location start = headPos.clone();
 
-        double yaw = xzNoiseValue * 2D * Math.PI;
-        double pitch = yNoiseValue * 2D * Math.PI;
-        Bukkit.broadcastMessage("xzNoise: " + xzNoiseValue + "           yNoise: " + yNoiseValue);
+        double yaw = (xzNoiseValue - 0.9) * 5 * 2D * Math.PI;
+        double pitch = (yNoiseValue - 0.9) * 5 * 2D * Math.PI;
+        // Bukkit.broadcastMessage("xzNoise: " + (xzNoiseValue - 0.9) * 5 + " yNoise: "
+        // + (yNoiseValue - 0.9) * 5);
         Vector xzOffset = new Vector(Math.cos(yaw), 0, Math.sin(yaw)).normalize();
         xzOffset = xzOffset.multiply(Math.sin(pitch));
-        Vector totalOffset = new Vector(0, Math.sin(pitch), 0).add(xzOffset).normalize();
+        // Bukkit.broadcastMessage("XZLength: " + xzOffset.length() + "");
+        Vector totalOffset = new Vector(0, Math.sin(pitch) * yMultiplier, 0).add(xzOffset).normalize();
+        // Bukkit.broadcastMessage("Total Length:" + totalOffset.length());
+        Random rnd = new Random();
 
-        totalOffset.multiply(segmentLength);
+        totalOffset.multiply((Math.abs(rnd.nextGaussian()) + 1) * segmentLength);
         return new WormSegment(start, totalOffset);
     }
 

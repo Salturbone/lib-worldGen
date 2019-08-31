@@ -118,10 +118,10 @@ public class Worms {
       offsetPos.x *= m_segmentLength;
       offsetPos.y *= m_segmentLength;
 
-      double x0 = (double) (curSegmentScreenPos.x + curNormalPos.x);
-      double y0 = (double) (curSegmentScreenPos.y + curNormalPos.y);
-      double x1 = (double) (curSegmentScreenPos.x - curNormalPos.x);
-      double y1 = (double) (curSegmentScreenPos.y - curNormalPos.y);
+      // double x0 = (double) (curSegmentScreenPos.x + curNormalPos.x);
+      // double y0 = (double) (curSegmentScreenPos.y + curNormalPos.y);
+      // double x1 = (double) (curSegmentScreenPos.x - curNormalPos.x);
+      // double y1 = (double) (curSegmentScreenPos.y - curNormalPos.y);
 
       // Draw the segment using OpenGL.
       // glTexCoord2f((float) curSegment, 0.0f);
