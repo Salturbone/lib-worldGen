@@ -12,6 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.noise.PerlinNoiseGenerator;
+import org.spongepowered.noise.Utils;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -27,64 +29,114 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length >= 1 && args[0].equalsIgnoreCase("del")) {
-            deleteWorld("DeliYerler");
-            sender.sendMessage("Silmesi lazım fln");
-            return true;
-        }
-        if (args.length >= 1 && args[0].equalsIgnoreCase("tp")) {
-            if (args.length >= 2 && args[1].equalsIgnoreCase("w")) {
-                World world = Bukkit.getWorld("world");
+        if (label.equalsIgnoreCase("qadrgen")) {
+            if (args.length >= 1 && args[0].equalsIgnoreCase("del")) {
+                deleteWorld("QadrYerleri");
+                sender.sendMessage("Silmesi lazım fln");
+                return true;
+            }
+            if (args.length >= 1 && args[0].equalsIgnoreCase("tp")) {
+                if (args.length >= 2 && args[1].equalsIgnoreCase("w")) {
+                    World world = Bukkit.getWorld("world");
+                    Player p = (Player) sender;
+                    p.teleport(world.getSpawnLocation());
+                    return true;
+                }
+                World world = Bukkit.getWorld("QadrYerleri");
                 Player p = (Player) sender;
                 p.teleport(world.getSpawnLocation());
                 return true;
             }
-            World world = Bukkit.getWorld("DeliYerler");
-            Player p = (Player) sender;
-            p.teleport(world.getSpawnLocation());
+            long seed = random.nextLong();
+            int octaves = 5;
+            double frequency = 0.05D;
+            if (getFromArgs(args, "f") != null) {
+                frequency = Double.valueOf(getFromArgs(args, "f"));
+            }
+            if (getFromArgs(args, "s") != null) {
+                seed = Long.valueOf(getFromArgs(args, "s"));
+            }
+            if (getFromArgs(args, "o") != null) {
+                octaves = Integer.valueOf(getFromArgs(args, "o"));
+            }
+            if (Bukkit.getWorld("QadrYerleri") != null) {
+                deleteWorld("QadrYerleri");
+            }
+            WorldCreator wc = new WorldCreator("QadrYerleri");
+            wc.generator(new CCGen(frequency, octaves));
+            wc.seed(seed);
+            World world = getServer().createWorld(wc);
+            world.setSpawnLocation(world.getSpawnLocation().add(0, 30, 0));
+            sender.sendMessage("Frequency: " + ChatColor.DARK_AQUA + frequency);
+            sender.sendMessage("Octaves: " + ChatColor.DARK_AQUA + octaves);
+            sender.sendMessage("Seed: " + ChatColor.DARK_AQUA + seed);
+            if (sender instanceof Player) {
+                ((Player) sender).teleport(world.getSpawnLocation());
+            }
             return true;
-        }
-        long seed = random.nextLong();
-        int octaves = 5;
-        double frequency = 0.05D;
-        double lacunarity = 1D;
-        if (getFromArgs(args, "l") != null) {
-            lacunarity = Double.valueOf(getFromArgs(args, "l"));
-        }
-        double presistence = 0.5D;
-        if (getFromArgs(args, "p") != null) {
-            presistence = Double.valueOf(getFromArgs(args, "p"));
-        }
-        if (getFromArgs(args, "f") != null) {
-            frequency = Double.valueOf(getFromArgs(args, "f"));
-        }
-        if (getFromArgs(args, "s") != null) {
-            seed = Long.valueOf(getFromArgs(args, "s"));
-        }
-        if (getFromArgs(args, "o") != null) {
-            octaves = Integer.valueOf(getFromArgs(args, "o"));
-        }
-        if (Bukkit.getWorld("DeliYerler") != null) {
-            deleteWorld("DeliYerler");
-        }
-        WorldCreator wc = new WorldCreator("DeliYerler");
-        // wc.generator(new CCGen(frequency, octaves));
-        wc.generator(new SutGen(frequency, presistence, lacunarity, octaves));
-        wc.seed(seed);
-        World world = getServer().createWorld(wc);
-        world.setSpawnLocation(world.getSpawnLocation().add(0, 30, 0));
-        sender.sendMessage("Frequency: " + ChatColor.DARK_AQUA + frequency);
-        sender.sendMessage("Octaves: " + ChatColor.DARK_AQUA + octaves);
-        sender.sendMessage("Presistence: " + ChatColor.DARK_AQUA + presistence);
-        sender.sendMessage("Lacunarity: " + ChatColor.DARK_AQUA + lacunarity);
-        sender.sendMessage("Seed: " + ChatColor.DARK_AQUA + seed);
-        if (sender instanceof Player) {
-            ((Player) sender).teleport(world.getSpawnLocation());
+        } else if (label.equalsIgnoreCase("sutgen")) {
+            if (args.length >= 1 && args[0].equalsIgnoreCase("del")) {
+                deleteWorld("SutYerleri");
+                sender.sendMessage("Silmesi lazım fln");
+                return true;
+            }
+            if (args.length >= 1 && args[0].equalsIgnoreCase("tp")) {
+                if (args.length >= 2 && args[1].equalsIgnoreCase("w")) {
+                    World world = Bukkit.getWorld("world");
+                    Player p = (Player) sender;
+                    p.teleport(world.getSpawnLocation());
+                    return true;
+                }
+                World world = Bukkit.getWorld("SutYerleri");
+                Player p = (Player) sender;
+                p.teleport(world.getSpawnLocation());
+                return true;
+            }
+            long seed = random.nextLong();
+            int octaves = 5;
+            double frequency = 0.05D;
+            double lacunarity = 1D;
+            if (getFromArgs(args, "l") != null) {
+                lacunarity = Double.valueOf(getFromArgs(args, "l"));
+            }
+            double presistence = 0.5D;
+            if (getFromArgs(args, "p") != null) {
+                presistence = Double.valueOf(getFromArgs(args, "p"));
+            }
+            if (getFromArgs(args, "f") != null) {
+                frequency = Double.valueOf(getFromArgs(args, "f"));
+            }
+            if (getFromArgs(args, "s") != null) {
+                seed = Long.valueOf(getFromArgs(args, "s"));
+            }
+            if (getFromArgs(args, "o") != null) {
+                octaves = Integer.valueOf(getFromArgs(args, "o"));
+            }
+            if (Bukkit.getWorld("SutYerleri") != null) {
+                deleteWorld("SutYerleri");
+            }
+            WorldCreator wc = new WorldCreator("SutYerleri");
+            // wc.generator(new CCGen(frequency, octaves));
+            wc.generator(new SutGen(frequency, presistence, lacunarity, octaves));
+            wc.seed(seed);
+            World world = getServer().createWorld(wc);
+            world.setSpawnLocation(world.getSpawnLocation().add(0, 30, 0));
+            sender.sendMessage("Frequency: " + ChatColor.DARK_AQUA + frequency);
+            sender.sendMessage("Octaves: " + ChatColor.DARK_AQUA + octaves);
+            sender.sendMessage("Presistence: " + ChatColor.DARK_AQUA + presistence);
+            sender.sendMessage("Lacunarity: " + ChatColor.DARK_AQUA + lacunarity);
+            sender.sendMessage("Seed: " + ChatColor.DARK_AQUA + seed);
+            sender.sendMessage(Utils.RANDOM_VECTORS.length + "");
+            if (sender instanceof Player) {
+                ((Player) sender).teleport(world.getSpawnLocation());
+            }
+            return true;
         }
         return true;
     }
 
     public void deleteWorld(String worlds) {
+        PerlinNoiseGenerator noise;
         World world = Bukkit.getWorld(worlds);
         if (world == null)
             return;
@@ -134,6 +186,8 @@ public class Main extends JavaPlugin implements Listener {
         int X = (int) Math.floor(x) & 255, // FIND UNIT CUBE THAT
                 Y = (int) Math.floor(y) & 255, // CONTAINS POINT.
                 Z = (int) Math.floor(z) & 255;
+        Bukkit.broadcastMessage("x to X:" + X);
+        Bukkit.broadcastMessage("z to Z:" + X);
         x -= Math.floor(x); // FIND RELATIVE X,Y,Z
         y -= Math.floor(y); // OF POINT IN CUBE.
         z -= Math.floor(z);

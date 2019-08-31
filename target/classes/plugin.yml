@@ -7,3 +7,5 @@ load: startup
 commands:
   qadrgen:
     description: biji
+  sutgen:
+    description: biji2

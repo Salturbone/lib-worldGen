@@ -12,7 +12,6 @@ public class MountainHeight extends SutHeight {
 
     public MountainHeight(int priority) {
         super(priority);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
