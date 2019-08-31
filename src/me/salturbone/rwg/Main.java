@@ -4,19 +4,29 @@ import java.io.File;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.generator.InternalChunkGenerator;
+import org.bukkit.craftbukkit.v1_12_R1.generator.NormalChunkGenerator;
 import org.bukkit.entity.Player;
-import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin {
+import net.minecraft.server.v1_12_R1.ChunkProviderGenerate;
+import net.minecraft.server.v1_12_R1.NoiseGenerator3;
+import net.minecraft.server.v1_12_R1.WorldGenCaves;
+import net.minecraft.server.v1_12_R1.WorldServer;
+
+public class Main extends JavaPlugin implements Listener {
 
     public static Random random = new Random();
 
     public void onEnable() {
+        Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     public void onDisable() {
@@ -46,28 +56,35 @@ public class Main extends JavaPlugin {
             p.teleport(world.getSpawnLocation());
             return true;
         }
-        long seed = 1l;
-        if (args.length >= 1) {
-            try {
-                seed = Long.valueOf(args[0]);
-            } catch (NumberFormatException e) {
-                sender.sendMessage("long gir tşk");
-            }
-        } else {
-            seed = random.nextLong();
+        long seed = random.nextLong();
+        int octaves = 5;
+        double frequency = 2.5D;
+        if (getFromArgs(args, "f") != null) {
+            frequency = Double.valueOf(getFromArgs(args, "f"));
+        }
+        if (getFromArgs(args, "s") != null) {
+            seed = Long.valueOf(getFromArgs(args, "s"));
+        }
+        if (getFromArgs(args, "o") != null) {
+            octaves = Integer.valueOf(getFromArgs(args, "o"));
         }
         WorldCreator wc = new WorldCreator("DeliYerler");
-        wc.generator(new CCGen());
+        wc.generator(new CCGen(frequency, octaves));
         wc.seed(seed);
-        Bukkit.broadcastMessage(wc.seed() + "");
         getServer().createWorld(wc);
-        sender.sendMessage("Yaratması lazım fln");
+        sender.sendMessage("Frequency: " + ChatColor.DARK_AQUA + frequency);
+        sender.sendMessage("Octaves: " + ChatColor.DARK_AQUA + octaves);
+        sender.sendMessage("Seed: " + ChatColor.DARK_AQUA + seed);
+        World world = Bukkit.getWorld("world");
+        WorldServer w = ((CraftWorld) world).getHandle();
+        Bukkit.broadcastMessage(w.getChunkProviderServer().chunkGenerator + "");
+        Bukkit.broadcastMessage(w.worldProvider.getChunkGenerator() + "");
+        NormalChunkGenerator ncg;
+        ChunkProviderGenerate cpg;
+        InternalChunkGenerator icg;
+        WorldGenCaves wgc;
+        NoiseGenerator3 ng3;
         return true;
-    }
-
-    @Override
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        return new CCGen();
     }
 
     public boolean deleteWorld(File path) {
@@ -83,4 +100,13 @@ public class Main extends JavaPlugin {
         }
         return (path.delete());
     }
+
+    public static String getFromArgs(String[] args, String prefix) {
+        for (String str : args) {
+            if (str.startsWith(prefix + ":"))
+                return str.replaceFirst(prefix + ":", "");
+        }
+        return null;
+    }
+
 }
