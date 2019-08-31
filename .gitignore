@@ -32,3 +32,4 @@ target/maven-archiver/pom.properties
 .factorypath
 .classpath
 .project
+pom.xml
