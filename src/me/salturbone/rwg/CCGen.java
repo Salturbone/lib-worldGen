@@ -4,10 +4,14 @@ import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 
 public class CCGen extends ChunkGenerator {
+
+    private final int ocean_limit = 60;
+    private final int ocean_type_limit = 61;
 
     private double frequency;
     private int octaves;
@@ -20,24 +24,28 @@ public class CCGen extends ChunkGenerator {
     @Override
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
-
         PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
-        per_ter_gen.setScale(0.005D);
+        per_ter_gen.setScale(0.01D);
         int currentHeight = 0;
         int curPosState;
         int kindofrandom;
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
-                currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.1D, true) + 1)
-                        * 60D + 29D);
+                biome.setBiome(chunkX, chunkZ, Biome.MESA);
+                currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
+                        * 40D + 29D);
 
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
 
                 chunk.setBlock(X, currentHeight, Z, Material.GRASS);
                 chunk.setBlock(X, currentHeight - 1, Z, Material.DIRT);
-                if (currentHeight <= 60) {
-                    for (int i = 1; i <= 60 - currentHeight; i++) {
-                        chunk.setBlock(X, currentHeight + i, Z, Material.WATER);
+                if (currentHeight <= ocean_type_limit) {
+                    chunk.setBlock(X, currentHeight, Z, Material.SAND);
+                    
+                    if (currentHeight <= ocean_limit) {
+                        for (int i = 1; i <= ocean_limit - currentHeight; i++) {
+                            chunk.setBlock(X, currentHeight + i, Z, Material.WATER);
+                        }
                     }
                 }
 
