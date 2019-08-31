@@ -13,7 +13,7 @@ public class CCGen extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
 
-        PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), 8);
+        PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), 1);
         per_ter_gen.setScale(0.005D);
         int currentHeight = 0;
         int curPosState;
