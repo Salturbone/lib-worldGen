@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
@@ -14,6 +15,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.noise.PerlinNoiseGenerator;
 import org.spongepowered.noise.Utils;
+
+import me.salturbone.rwg.noise_c.Worm;
+import me.salturbone.rwg.noise_c.Worm.WormSegment;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -50,9 +54,11 @@ public class Main extends JavaPlugin implements Listener {
             long seed = random.nextLong();
             int octaves = 5;
             double frequency = 0.05D;
+
             if (getFromArgs(args, "f") != null) {
                 frequency = Double.valueOf(getFromArgs(args, "f"));
             }
+
             if (getFromArgs(args, "s") != null) {
                 seed = Long.valueOf(getFromArgs(args, "s"));
             }
@@ -75,6 +81,42 @@ public class Main extends JavaPlugin implements Listener {
             }
             return true;
         } else if (label.equalsIgnoreCase("sutgen")) {
+            if (args.length >= 1 && args[0].equalsIgnoreCase("worm")) {
+                Player p = (Player) sender;
+                int octaves = 5;
+                double frequency = 0.05D;
+                double lacunarity = 1D;
+                double twistiness = 10;
+                if (getFromArgs(args, "t") != null) {
+                    twistiness = Double.valueOf(getFromArgs(args, "t"));
+                }
+                if (getFromArgs(args, "l") != null) {
+                    lacunarity = Double.valueOf(getFromArgs(args, "l"));
+                }
+                double presistence = 0.5D;
+                if (getFromArgs(args, "p") != null) {
+                    presistence = Double.valueOf(getFromArgs(args, "p"));
+                }
+                if (getFromArgs(args, "f") != null) {
+                    frequency = Double.valueOf(getFromArgs(args, "f"));
+                }
+                if (getFromArgs(args, "o") != null) {
+                    octaves = Integer.valueOf(getFromArgs(args, "o"));
+                }
+                Worm worm = new Worm(p.getLocation());
+                worm.noise.setFrequency(frequency);
+                worm.noise.setLacunarity(lacunarity);
+                worm.noise.setPersistence(presistence);
+                worm.noise.setOctaveCount(octaves);
+                worm.twistiness = twistiness;
+                worm.segmentLength = 2;
+                worm.generate(30);
+                for (WormSegment segment : worm.getSegments()) {
+                    segment.start.getBlock().setType(Material.QUARTZ_BLOCK);
+                }
+                p.sendMessage("Worm olması lzm");
+                return true;
+            }
             if (args.length >= 1 && args[0].equalsIgnoreCase("del")) {
                 deleteWorld("SutYerleri");
                 sender.sendMessage("Silmesi lazım fln");
@@ -136,7 +178,6 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public void deleteWorld(String worlds) {
-        PerlinNoiseGenerator noise;
         World world = Bukkit.getWorld(worlds);
         if (world == null)
             return;
