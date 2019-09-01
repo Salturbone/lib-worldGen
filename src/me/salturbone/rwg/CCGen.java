@@ -2,7 +2,6 @@ package me.salturbone.rwg;
 
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -32,6 +31,7 @@ public class CCGen extends ChunkGenerator {
         simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
         per_ter_gen0.setScale(0.1D);
+
 
         double biomeHandler = 0;
         int currentHeight = 0;
