@@ -2,10 +2,13 @@ package me.salturbone.rwg;
 
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
+import org.bukkit.util.noise.SimplexOctaveGenerator;
 
 public class CCGen extends ChunkGenerator {
 
@@ -24,22 +27,29 @@ public class CCGen extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
         PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
-        PerlinOctaveGenerator per_ter_gen0 = per_ter_gen;
+        PerlinOctaveGenerator per_ter_gen0 = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
+        SimplexOctaveGenerator simplex_gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 5);
+        simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
-        per_ter_gen0.setScale(1.0D);
+        per_ter_gen0.setScale(0.1D);
 
-        int curOceanH = 0;
+        double biomeHandler = 0;
         int currentHeight = 0;
         int curPosState;
         int kindofrandom;
         
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
-                
-                currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
-                        * 35D + 30D);
-                curOceanH = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
-                        * 30D + 20D);
+                biomeHandler = simplex_gen.noise(chunkX*16+X,chunkZ*16+Z, frequency, 0.5D, true);
+                if (Math.abs(biomeHandler) >= 0.3) {
+                    biome.setBiome(X, Z, Biome.PLAINS);
+                    currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
+                            * 40D + 30D);
+                } else {
+                    biome.setBiome(X, Z, Biome.DEEP_OCEAN);
+                    currentHeight = (int) ((per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
+                            * 30D + 40D);
+                }
 
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
 
@@ -47,11 +57,11 @@ public class CCGen extends ChunkGenerator {
                 chunk.setBlock(X, currentHeight - 1, Z, Material.DIRT);
 
                 if (currentHeight <= ocean_type_limit) {
-                    chunk.setBlock(X, curOceanH, Z, Material.SAND);
+                    chunk.setBlock(X, currentHeight, Z, Material.SAND);
                     
                     if (currentHeight <= ocean_limit) {
                         for (int i = 1; i <= ocean_limit - currentHeight; i++) {
-                            chunk.setBlock(X, curOceanH + i, Z, Material.WATER);
+                            chunk.setBlock(X, currentHeight + i, Z, Material.WATER);
                         }
                     }
                 }
