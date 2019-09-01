@@ -56,11 +56,6 @@ public class Worm {
         segments.add(nSegment);
         headPos = headPos.add(nSegment.offset);
         noisePos = noisePos.add(nSegment.offset.clone().multiply(twistiness));
-        if (segments.size() > 2) {
-            Location lastEnd = segments.get(segments.size() - 2).end();
-            Location newEnd = nSegment.end();
-            Bukkit.broadcastMessage(newEnd.subtract(lastEnd).toVector().length() + "");
-        }
 
     }
 

@@ -1,6 +1,8 @@
 package me.salturbone.rwg;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -130,7 +132,7 @@ public class Main extends JavaPlugin implements Listener {
                 for (WormSegment segment : worm.getSegments()) {
                     Location loc = segment.start.clone();
                     createSphere(loc, 5, Material.QUARTZ_BLOCK, true);
-                    createSphere(loc, 3, Material.AIR, false);
+                    // createSphere(loc, 3, Material.AIR, false);
                     // for (double i = 0.5; i <= segment.offset.length(); i += 0.5) {
                     //
                     // .add(segment.offset.clone().multiply(i / segment.offset.length()));
@@ -248,26 +250,48 @@ public class Main extends JavaPlugin implements Listener {
     public void createSphere(Location center, int radius, Material type, boolean hollow) {
         for (int y = radius; y >= -radius; y--) {
             double pitch = ((double) y / radius) * Math.PI / 2;
-            double tempRad = Math.cos(pitch);
-            Vector2D v = new Vector2D(1, 0);
+            int tempRad = (int) Math.round(Math.cos(pitch) * radius);
             for (int degree = 0; degree < Math.PI * 2; degree += Math.PI / (2 * tempRad)) {
-                rotateAroundY(v, degree);
+                for (Location loc : drawCircle(center.clone().add(0, y, 0), tempRad)) {
+                    loc.getBlock().setType(Material.RED_NETHER_BRICK);
+                }
                 if (!hollow) {
-                    for (double i = 0; i < v.getLength(); i += 0.5) {
-                        Vector2D clone = new Vector2D(v);
-                        clone.multiply(i / v.getLength());
-                        Vector v3d = new Vector(clone.x, y, clone.y);
-                        Location curLoc = center.clone().add(v3d);
-                        curLoc.getBlock().setType(Material.RED_NETHER_BRICK);
+                    for (int i = 0; i < tempRad; i++) {
+                        for (Location loc : drawCircle(center.clone().add(0, y, 0), i)) {
+                            loc.getBlock().setType(Material.AIR);
+                        }
                     }
-                } else {
-                    Vector v3d = new Vector(v.x, y, v.y);
-                    Location curLoc = center.clone().add(v3d);
-                    curLoc.getBlock().setType(Material.RED_NETHER_BRICK);
                 }
 
             }
         }
+    }
+
+    private List<Location> drawCircle(Location center, int radius) {
+        int d = (5 - radius * 4) / 4;
+        int x = 0;
+        int z = radius;
+        List<Location> locs = new ArrayList<>();
+
+        do {
+
+            locs.add(center.clone().add(x, 0, z));
+            locs.add(center.clone().add(x, 0, -z));
+            locs.add(center.clone().add(-x, 0, z));
+            locs.add(center.clone().add(-x, 0, -z));
+            locs.add(center.clone().add(z, 0, x));
+            locs.add(center.clone().add(z, 0, -x));
+            locs.add(center.clone().add(-z, 0, x));
+            locs.add(center.clone().add(-z, 0, -x));
+            if (d < 0) {
+                d += 2 * x + 1;
+            } else {
+                d += 2 * (x - z) + 1;
+                z--;
+            }
+            x++;
+        } while (x <= z);
+        return locs;
     }
 
     public void rotateAroundY(Vector2D v, double degree) {
