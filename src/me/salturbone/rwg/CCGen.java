@@ -4,7 +4,6 @@ import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 
@@ -25,26 +24,34 @@ public class CCGen extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
         PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
+        PerlinOctaveGenerator per_ter_gen0 = per_ter_gen;
         per_ter_gen.setScale(0.01D);
+        per_ter_gen0.setScale(1.0D);
+
+        int curOceanH = 0;
         int currentHeight = 0;
         int curPosState;
         int kindofrandom;
+        
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
-                biome.setBiome(chunkX, chunkZ, Biome.MESA);
+                
                 currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
-                        * 40D + 29D);
+                        * 35D + 30D);
+                curOceanH = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
+                        * 30D + 20D);
 
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
 
                 chunk.setBlock(X, currentHeight, Z, Material.GRASS);
                 chunk.setBlock(X, currentHeight - 1, Z, Material.DIRT);
+
                 if (currentHeight <= ocean_type_limit) {
-                    chunk.setBlock(X, currentHeight, Z, Material.SAND);
+                    chunk.setBlock(X, curOceanH, Z, Material.SAND);
                     
                     if (currentHeight <= ocean_limit) {
                         for (int i = 1; i <= ocean_limit - currentHeight; i++) {
-                            chunk.setBlock(X, currentHeight + i, Z, Material.WATER);
+                            chunk.setBlock(X, curOceanH + i, Z, Material.WATER);
                         }
                     }
                 }
