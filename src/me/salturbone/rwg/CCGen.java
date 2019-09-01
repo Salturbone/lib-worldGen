@@ -1,40 +1,28 @@
- 
-
-
-
-
-
-
-
-
-
-
-
 
 package me.salturbone.rwg;
- 
+
 import java.util.Random;
- 
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 import org.bukkit.util.noise.SimplexOctaveGenerator;
- 
+
 public class CCGen extends ChunkGenerator {
- 
+
     private final int ocean_limit = 60;
     private final int ocean_type_limit = 61;
- 
+
     private double frequency;
     private int octaves;
- 
+
     public CCGen(double frequency, int octaves) {
         this.frequency = frequency;
         this.octaves = octaves;
     }
- 
+
     @Override
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
@@ -44,42 +32,42 @@ public class CCGen extends ChunkGenerator {
         simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
         per_ter_gen0.setScale(0.1D);
- 
- 
+
         double biomeHandler = 0;
         int currentHeight = 0;
         int curPosState;
         int kindofrandom;
-        
+
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
-                biomeHandler = simplex_gen.noise(chunkX*16+X,chunkZ*16+Z, frequency, 0.5D, true);
-                
+                biomeHandler = simplex_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true);
+
                 if (Math.abs(biomeHandler) >= 0.1) {
-                  chunk.setBiome(X,Z,Biome.PLAINS);
-                  currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
-                            * 40D + 30D);
+                    biome.setBiome(X, Z, Biome.PLAINS);
+                    currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true)
+                            + 1) * 40D + 30D);
                 } else {
-                    chunk.setBiome(X,Z,Biome.OCEAN);
-                    currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D + 30D)  + 
-                                 (per_ter_gen0.noise(chunkX*16 + X, chunkZ*16 + Z, frequency/2, 0.5, true) * 20);
+                    biome.setBiome(X, Z, Biome.OCEAN);
+                    currentHeight = (int) (((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true)
+                            + 1) * 40D + 30D)
+                            + (per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency / 2, 0.5, true) * 20));
                 }
- 
+
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
- 
+
                 chunk.setBlock(X, currentHeight, Z, Material.GRASS);
                 chunk.setBlock(X, currentHeight - 1, Z, Material.DIRT);
- 
+
                 if (currentHeight <= ocean_type_limit) {
                     chunk.setBlock(X, currentHeight, Z, Material.SAND);
-                    
+
                     if (currentHeight <= ocean_limit) {
                         for (int i = 1; i <= ocean_limit - currentHeight; i++) {
                             chunk.setBlock(X, currentHeight + i, Z, Material.WATER);
                         }
                     }
                 }
- 
+
                 for (int i = currentHeight - 2; i > 0; i--) {
                     chunk.setBlock(X, i, Z, Material.STONE);
                 }
@@ -120,8 +108,8 @@ public class CCGen extends ChunkGenerator {
                 chunk.setBlock(X, 0, Z, Material.BEDROCK);
             }
         }
- 
+
         return chunk;
     }
- 
+
 }
