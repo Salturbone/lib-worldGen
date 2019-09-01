@@ -16,7 +16,6 @@ public class CCGen extends ChunkGenerator {
  
     private double frequency;
     private int octaves;
-    private static boolean k = false;
  
     public CCGen(double frequency, int octaves) {
         this.frequency = frequency;
@@ -49,17 +48,12 @@ public class CCGen extends ChunkGenerator {
                 curBiH0 = (int)((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
                             * 40D + 30D) + (per_ter_gen0.noise(chunkX*16 + X, chunkZ*16 + Z, frequency/2, 0.1D, true) 
                             * 20D);
+                currentHeight = curBiH;
                 if (Math.abs(biomeHandler) >= 0.1) {
                     biome.setBiome(X,Z,Biome.PLAINS);
-                    currentHeight = curBiH;
-                    k = false;
                 } else {
                     biome.setBiome(X,Z,Biome.OCEAN);
-                    if (curBiH== curBiH0) {
-                        k = true;
-                    } 
-                }
-                if (k) {currentHeight = curBiH0;} 
+                } 
  
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
  
@@ -113,6 +107,12 @@ public class CCGen extends ChunkGenerator {
                         chunk.setBlock(X, currentHeight + i, Z, Material.NETHER_BRICK);
                     }
                 }
+                currentHeight = curBiH0;
+                if (biome.getType() == Biome.OCEAN && chunk.getType(X,currentHeight,Z) == Material.AIR) {
+                    for(int i = currentHeight; i > 0; i--) {
+                        chunk.setBlock(X,currentHeight,Z,Material.GRASS);
+                    } 
+                } 
                 chunk.setBlock(X, 0, Z, Material.BEDROCK);
             }
         }
