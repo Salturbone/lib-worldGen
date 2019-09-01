@@ -2,7 +2,6 @@ package me.salturbone.rwg;
 
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -37,18 +36,18 @@ public class CCGen extends ChunkGenerator {
         int currentHeight = 0;
         int curPosState;
         int kindofrandom;
-        
+
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
-                biomeHandler = simplex_gen.noise(chunkX*16+X,chunkZ*16+Z, frequency, 0.5D, true);
+                biomeHandler = simplex_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true);
                 if (Math.abs(biomeHandler) >= 0.3) {
                     biome.setBiome(X, Z, Biome.PLAINS);
-                    currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
-                            * 40D + 30D);
+                    currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true)
+                            + 1) * 40D + 30D);
                 } else {
                     biome.setBiome(X, Z, Biome.DEEP_OCEAN);
-                    currentHeight = (int) ((per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
-                            * 30D + 40D);
+                    currentHeight = (int) ((per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true)
+                            + 1) * 30D + 40D);
                 }
 
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
@@ -58,7 +57,7 @@ public class CCGen extends ChunkGenerator {
 
                 if (currentHeight <= ocean_type_limit) {
                     chunk.setBlock(X, currentHeight, Z, Material.SAND);
-                    
+
                     if (currentHeight <= ocean_limit) {
                         for (int i = 1; i <= ocean_limit - currentHeight; i++) {
                             chunk.setBlock(X, currentHeight + i, Z, Material.WATER);

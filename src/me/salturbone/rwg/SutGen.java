@@ -48,7 +48,7 @@ public class SutGen extends ChunkGenerator {
         Plane pl = new Plane(perlin);
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int curHeight = (int) ((pl.getValue(chunkX * 16 + x, chunkZ * 16 + z) + 1) * 20D + 29D);
+                int curHeight = (int) ((pl.getValue(chunkX * 16 + x, chunkZ * 16 + z) + 1) * 40D + 29D);
                 generateXZ(world, seed, x, curHeight, z);
                 for (int y = 0; y <= curHeight; y++)
                     chunk.setBlock(x, y, z, Material.STONE);

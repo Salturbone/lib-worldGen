@@ -78,16 +78,12 @@ public class Worm {
 
         double yaw = (xzNoiseValue - 0.9) * 5 * 2D * Math.PI;
         double pitch = (yNoiseValue - 0.9) * 5 * 2D * Math.PI;
-        // Bukkit.broadcastMessage("xzNoise: " + (xzNoiseValue - 0.9) * 5 + " yNoise: "
-        // + (yNoiseValue - 0.9) * 5);
+        Bukkit.broadcastMessage("xzNoise: " + xzNoiseValue + " yNoise: " + yNoiseValue);
         Vector xzOffset = new Vector(Math.cos(yaw), 0, Math.sin(yaw)).normalize();
         xzOffset = xzOffset.multiply(Math.sin(pitch));
-        // Bukkit.broadcastMessage("XZLength: " + xzOffset.length() + "");
         Vector totalOffset = new Vector(0, Math.sin(pitch) * yMultiplier, 0).add(xzOffset).normalize();
-        // Bukkit.broadcastMessage("Total Length:" + totalOffset.length());
         Random rnd = new Random();
-
-        totalOffset.multiply((Math.abs(rnd.nextGaussian()) + 1) * segmentLength);
+        totalOffset.multiply(Math.sqrt(Math.abs(rnd.nextGaussian()) + 1) * segmentLength);
         return new WormSegment(start, totalOffset);
     }
 

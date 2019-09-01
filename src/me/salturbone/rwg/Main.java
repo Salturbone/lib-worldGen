@@ -16,10 +16,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 import org.spongepowered.noise.Utils;
+import org.spongepowered.noise.module.source.Perlin;
 
-import me.salturbone.rwg.noise_c.Vector2D;
 import me.salturbone.rwg.noise_c.Worm;
 import me.salturbone.rwg.noise_c.Worm.WormSegment;
 
@@ -85,15 +84,54 @@ public class Main extends JavaPlugin implements Listener {
             }
             return true;
         } else if (label.equalsIgnoreCase("sutgen")) {
+            if (args.length >= 1 && args[0].equalsIgnoreCase("random")) {
+
+                long seed = 3;
+                int octaves = 1;
+                double frequency = 0.05D;
+                double lacunarity = 1D;
+                double presistence = 0.5D;
+                if (getFromArgs(args, "l") != null) {
+                    lacunarity = Double.valueOf(getFromArgs(args, "l"));
+                }
+
+                if (getFromArgs(args, "p") != null) {
+                    presistence = Double.valueOf(getFromArgs(args, "p"));
+                }
+                if (getFromArgs(args, "f") != null) {
+                    frequency = Double.valueOf(getFromArgs(args, "f"));
+                }
+                if (getFromArgs(args, "s") != null) {
+                    seed = Long.valueOf(getFromArgs(args, "s"));
+                }
+                if (getFromArgs(args, "o") != null) {
+                    octaves = Integer.valueOf(getFromArgs(args, "o"));
+                }
+
+                Perlin perlin = new Perlin();
+                perlin.setSeed((int) seed);
+                perlin.setFrequency(frequency);
+                perlin.setOctaveCount(octaves);
+                perlin.setLacunarity(lacunarity);
+                perlin.setPersistence(presistence);
+                Player p = (Player) sender;
+                // Location l = p.getLocation();
+                Double x, y, z;
+                x = Double.valueOf(args[1]);
+                y = Double.valueOf(args[2]);
+                z = Double.valueOf(args[3]);
+                p.sendMessage("Random: " + perlin.getValue(x, y, z));
+                return true;
+            }
             if (args.length >= 1 && args[0].equalsIgnoreCase("worm")) {
                 Player p = (Player) sender;
                 int octaves = 1;
-                double frequency = 2.5D;
+                double frequency = 3D;
                 double lacunarity = 2D;
-                double twistiness = 10;
+                double twistiness = 0.3d;
                 double length = 4;
                 int count = 30;
-                double yMutliplier = 0.2;
+                double yMutliplier = 0.25;
                 if (getFromArgs(args, "y") != null) {
                     yMutliplier = Double.valueOf(getFromArgs(args, "y"));
                 }
@@ -131,23 +169,20 @@ public class Main extends JavaPlugin implements Listener {
                 // int c = 0;
                 for (WormSegment segment : worm.getSegments()) {
                     Location loc = segment.start.clone();
-                    createSphere(loc, 5, Material.QUARTZ_BLOCK, true);
-                    // createSphere(loc, 3, Material.AIR, false);
-                    // for (double i = 0.5; i <= segment.offset.length(); i += 0.5) {
-                    //
-                    // .add(segment.offset.clone().multiply(i / segment.offset.length()));
-                    // loc.getBlock().setType(Material.RED_NETHER_BRICK);
-                    // }
-                    // Block b = segment.start.getBlock();
-                    // b.setType(Material.QUARTZ_BLOCK);
-                    // b = segment.start.clone().add(0, 1, 0).getBlock();
-                    // b.setType(Material.SIGN_POST, false);
-                    // if (b.getState() instanceof Sign) {
-                    // Sign sign = (Sign) b.getState();
-                    // sign.setLine(0, c + "");
-                    // sign.update(false, false);
-                    // }
-
+                    // createSphere(loc, 7, Material.QUARTZ_BLOCK);
+                    for (double i = 0.5; i <= segment.offset.length(); i += 1) {
+                        Location center = loc.clone().add(segment.offset.clone().multiply(i / segment.offset.length()));
+                        createSphere(center, 5, Material.STONE);
+                    }
+                    // c++;
+                }
+                for (WormSegment segment : worm.getSegments()) {
+                    Location loc = segment.start.clone();
+                    // createSphere(loc, 7, Material.QUARTZ_BLOCK);
+                    for (double i = 0.5; i <= segment.offset.length(); i += 1) {
+                        Location center = loc.clone().add(segment.offset.clone().multiply(i / segment.offset.length()));
+                        createSphere(center, 3, Material.AIR);
+                    }
                     // c++;
                 }
                 p.sendMessage("Worm olması lzm");
@@ -247,34 +282,27 @@ public class Main extends JavaPlugin implements Listener {
         return null;
     }
 
-    public void createSphere(Location center, int radius, Material type, boolean hollow) {
-        for (int y = radius; y >= -radius; y--) {
-            double pitch = ((double) y / radius) * Math.PI / 2;
-            int tempRad = (int) Math.round(Math.cos(pitch) * radius);
-            for (int degree = 0; degree < Math.PI * 2; degree += Math.PI / (2 * tempRad)) {
-                for (Location loc : drawCircle(center.clone().add(0, y, 0), tempRad)) {
-                    loc.getBlock().setType(Material.RED_NETHER_BRICK);
-                }
-                if (!hollow) {
-                    for (int i = 0; i < tempRad; i++) {
-                        for (Location loc : drawCircle(center.clone().add(0, y, 0), i)) {
-                            loc.getBlock().setType(Material.AIR);
-                        }
+    public void createSphere(Location center, int radius, Material type) {
+        int radiusSquared = radius * radius;
+        for (int y = -radius; y <= radius; y++) {
+            for (int x = -radius; x <= radius; x++) {
+                for (int z = -radius; z <= radius; z++) {
+                    int distSquared = x * x + z * z + y * y;
+                    if (distSquared >= radiusSquared) {
+                        continue;
                     }
+                    center.clone().add(x, y, z).getBlock().setType(type);
                 }
-
             }
         }
     }
 
-    private List<Location> drawCircle(Location center, int radius) {
-        int d = (5 - radius * 4) / 4;
-        int x = 0;
-        int z = radius;
+    public List<Location> drawHollowCircle(Location center, int r) {
         List<Location> locs = new ArrayList<>();
-
-        do {
-
+        int x = 0;
+        int z = r;
+        double p = (5d / 4) - r;
+        while (x <= z) {
             locs.add(center.clone().add(x, 0, z));
             locs.add(center.clone().add(x, 0, -z));
             locs.add(center.clone().add(-x, 0, z));
@@ -283,20 +311,14 @@ public class Main extends JavaPlugin implements Listener {
             locs.add(center.clone().add(z, 0, -x));
             locs.add(center.clone().add(-z, 0, x));
             locs.add(center.clone().add(-z, 0, -x));
-            if (d < 0) {
-                d += 2 * x + 1;
-            } else {
-                d += 2 * (x - z) + 1;
+            if (p < 0)
+                p += (4 * x) + 6;
+            else {
+                p += (2 * (x - z)) + 5;
                 z--;
             }
             x++;
-        } while (x <= z);
+        }
         return locs;
     }
-
-    public void rotateAroundY(Vector2D v, double degree) {
-        double curDeg = Math.atan2(v.y, v.x);
-        v.set(Math.cos(curDeg + degree), Math.sin(curDeg + degree));
-    }
-
 }
