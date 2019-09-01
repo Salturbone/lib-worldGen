@@ -39,11 +39,9 @@ public class CCGen extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
         PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
-        PerlinOctaveGenerator per_ter_gen0 = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
         SimplexOctaveGenerator simplex_gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 5);
         simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
-        per_ter_gen0.setScale(0.1D);
  
  
         double biomeHandler = 0;
@@ -56,13 +54,13 @@ public class CCGen extends ChunkGenerator {
                 biomeHandler = simplex_gen.noise(chunkX*16+X,chunkZ*16+Z, frequency, 0.5D, true);
                 
                 if (Math.abs(biomeHandler) >= 0.1) {
-                  chunk.setBiome(X,Z,Biome.PLAINS);
+                  biome.setBiome(X,Z,Biome.PLAINS);
                   currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
                             * 40D + 30D);
                 } else {
-                    chunk.setBiome(X,Z,Biome.OCEAN);
+                    biome.setBiome(X,Z,Biome.OCEAN);
                     currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D + 30D)  + 
-                                 (per_ter_gen0.noise(chunkX*16 + X, chunkZ*16 + Z, frequency/2, 0.5, true) * 20);
+                                 (per_ter_gen.noise(chunkX*16 + X, chunkZ*16 + Z, frequency, 0.5, true) * 15);
                 }
  
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
