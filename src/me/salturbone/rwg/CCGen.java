@@ -41,14 +41,18 @@ public class CCGen extends ChunkGenerator {
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
                 biomeHandler = simplex_gen.noise(chunkX*16+X,chunkZ*16+Z, frequency, 0.5D, true);
-                if (Math.abs(biomeHandler) >= 0.3) {
+                if (Math.abs(biomeHandler) >= 0.2) {
                     biome.setBiome(X, Z, Biome.PLAINS);
                     currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
                             * 40D + 30D);
+                } else if (Math.abs(biomeHandler) < 0.2 && Math.abs(biomeHandler) >= 0.1){
+                    biome.setBiome(X, Z, Biome.OCEAN);
+                    currentHeight = (int)Math.sqrt(
+                        ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D + 30D) * ((per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 25D + 30D));
                 } else {
                     biome.setBiome(X, Z, Biome.DEEP_OCEAN);
                     currentHeight = (int) ((per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
-                            * 30D + 40D);
+                            * 25D + 30D);
                 }
 
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
