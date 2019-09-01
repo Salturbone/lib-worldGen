@@ -1,4 +1,3 @@
-
 package me.salturbone.rwg;
 
 import java.util.Random;
@@ -31,26 +30,28 @@ public class CCGen extends ChunkGenerator {
         SimplexOctaveGenerator simplex_gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 5);
         simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
-        per_ter_gen0.setScale(0.1D);
+        per_ter_gen.setScale(0.1D);
 
         double biomeHandler = 0;
         int currentHeight = 0;
+        int curBiH0 = 0;
+        int curBiH = 0;
         int curPosState;
         int kindofrandom;
 
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
                 biomeHandler = simplex_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true);
-
+                curBiH = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D
+                        + 30D);
+                curBiH0 = (int) (((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D
+                        + 30D)
+                        + (per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency / 2, 0.1D, true) * 20D));
+                currentHeight = curBiH;
                 if (Math.abs(biomeHandler) >= 0.1) {
                     biome.setBiome(X, Z, Biome.PLAINS);
-                    currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true)
-                            + 1) * 40D + 30D);
                 } else {
                     biome.setBiome(X, Z, Biome.OCEAN);
-                    currentHeight = (int) (((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true)
-                            + 1) * 40D + 30D)
-                            + (per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency / 2, 0.5, true) * 20));
                 }
 
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
@@ -103,6 +104,12 @@ public class CCGen extends ChunkGenerator {
                 if (curPosState == 10000) {
                     for (int i = 1; i < 10; i++) {
                         chunk.setBlock(X, currentHeight + i, Z, Material.NETHER_BRICK);
+                    }
+                }
+                currentHeight = curBiH0;
+                if (biome.getBiome(X, Z) == Biome.OCEAN && chunk.getType(X, currentHeight, Z) == Material.AIR) {
+                    for (int i = currentHeight; i > 0; i--) {
+                        chunk.setBlock(X, currentHeight, Z, Material.GRASS);
                     }
                 }
                 chunk.setBlock(X, 0, Z, Material.BEDROCK);
