@@ -1,16 +1,3 @@
- 
-
-
-
-
-
-
-
-
-
-
-
-
 package me.salturbone.rwg;
  
 import java.util.Random;
@@ -29,6 +16,7 @@ public class CCGen extends ChunkGenerator {
  
     private double frequency;
     private int octaves;
+    private static double k = 100;
  
     public CCGen(double frequency, int octaves) {
         this.frequency = frequency;
@@ -57,10 +45,10 @@ public class CCGen extends ChunkGenerator {
                   biome.setBiome(X,Z,Biome.PLAINS);
                   currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
                             * 40D + 30D);
+                  k = currentHeight/per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true);
                 } else {
                     biome.setBiome(X,Z,Biome.OCEAN);
-                    currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D + 30D)  + 
-                                 (per_ter_gen.noise(chunkX*16 + X, chunkZ*16 + Z, frequency, 0.5, true) * 15);
+                    currentHeight = (int) (per_ter_gen.noise(chunkX*16 + X, chunkZ*16 + Z, frequency/2, 0.1D, true) * k);
                 }
  
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
