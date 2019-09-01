@@ -16,7 +16,7 @@ public class CCGen extends ChunkGenerator {
  
     private double frequency;
     private int octaves;
-    private static double k = 100;
+    private static boolean k = false;
  
     public CCGen(double frequency, int octaves) {
         this.frequency = frequency;
@@ -27,29 +27,39 @@ public class CCGen extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
         PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
+        PerlinOctaveGenerator per_ter_gen0 = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
         SimplexOctaveGenerator simplex_gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 5);
         simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
+        per_ter_gen.setScale(0.1D);
  
  
         double biomeHandler = 0;
         int currentHeight = 0;
+        int curBiH0 = 0;
+        int curBiH = 0;
         int curPosState;
         int kindofrandom;
         
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
                 biomeHandler = simplex_gen.noise(chunkX*16+X,chunkZ*16+Z, frequency, 0.5D, true);
-                
-                if (Math.abs(biomeHandler) >= 0.1) {
-                  biome.setBiome(X,Z,Biome.PLAINS);
-                  currentHeight = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
+                curBiH = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
                             * 40D + 30D);
-                  k = currentHeight/per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true);
+                curBiH0 = (int)((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1)
+                            * 40D + 30D) + (per_ter_gen0.noise(chunkX*16 + X, chunkZ*16 + Z, frequency/2, 0.1D, true) 
+                            * 20D);
+                if (Math.abs(biomeHandler) >= 0.1) {
+                    biome.setBiome(X,Z,Biome.PLAINS);
+                    currentHeight = curBiH;
+                    k = false;
                 } else {
                     biome.setBiome(X,Z,Biome.OCEAN);
-                    currentHeight = (int) (per_ter_gen.noise(chunkX*16 + X, chunkZ*16 + Z, frequency/2, 0.1D, true) * k);
+                    if (curBiH== curBiH0) {
+                        k = true;
+                    } 
                 }
+                if (k) {currentHeight = curBiH0;} 
  
                 curPosState = (int) Math.sqrt(Math.pow(chunkX * 16 + X, 2D) + Math.pow(chunkZ * 16 + Z, 2D));
  
