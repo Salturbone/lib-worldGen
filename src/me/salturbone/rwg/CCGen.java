@@ -30,7 +30,7 @@ public class CCGen extends ChunkGenerator {
         SimplexOctaveGenerator simplex_gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 5);
         simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
-        per_ter_gen.setScale(0.1D);
+        per_ter_gen0.setScale(0.1D);
 
         double biomeHandler = 0;
         int currentHeight = 0;
@@ -109,7 +109,7 @@ public class CCGen extends ChunkGenerator {
                 currentHeight = curBiH0;
                 if (biome.getBiome(X, Z) == Biome.OCEAN && chunk.getType(X, currentHeight, Z) == Material.AIR) {
                     for (int i = currentHeight; i > 0; i--) {
-                        chunk.setBlock(X, currentHeight, Z, Material.GRASS);
+                        chunk.setBlock(X, i, Z, Material.GRASS);
                     }
                 }
                 chunk.setBlock(X, 0, Z, Material.BEDROCK);
