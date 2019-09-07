@@ -4,12 +4,15 @@ import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 
 import me.salturbone.rwg.biomes.BiOcean;
 
 public class CCGen extends ChunkGenerator {
 
+
+    public static int minHeight = 61;
     public CCGen() {
         
     }
@@ -18,13 +21,14 @@ public class CCGen extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
         //Biomes
-        BiOcean ocean_biome = new BiOcean(world.getSeed(), 0.00001D, 0.1D, chunk, biome);
+        BiOcean ocean_biome = new BiOcean(world.getSeed(), 0.0005D, 0.004D, chunk, biome);
 
 
-        int currentHeight = 65;
+        int currentHeight = minHeight;
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
                 //FLAT GENERATOR
+                biome.setBiome(X, Z, Biome.PLAINS);
                 chunk.setBlock(X, currentHeight, Z, Material.GRASS);
                 for (int i = currentHeight - 1; i > currentHeight - 5; i--) {
                     chunk.setBlock(X, i, Z, Material.DIRT);
@@ -44,14 +48,12 @@ public class CCGen extends ChunkGenerator {
     }
 
     public static int calculateMaxHeight(int x, int z, ChunkData chunk_data) {
-        int a = 65;
         for (int i = 255; i > 0; i--) {
             if (chunk_data.getType(x, i, z) != Material.AIR && chunk_data.getType(x, i, z) != Material.WATER) {
-                a = i;
-                break;
+                return i;
             }
         }
-        return a;
+        return 0;
     }
 
 }
