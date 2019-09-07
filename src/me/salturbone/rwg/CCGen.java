@@ -9,6 +9,8 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 import org.bukkit.util.noise.SimplexOctaveGenerator;
 
+import me.salturbone.rwg.lib_noise.SimplexNoiseGenerate;
+
 public class CCGen extends ChunkGenerator {
 
     private final int ocean_limit = 60;
@@ -28,7 +30,8 @@ public class CCGen extends ChunkGenerator {
         PerlinOctaveGenerator per_ter_gen = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
         PerlinOctaveGenerator per_ter_gen0 = new PerlinOctaveGenerator(new Random(world.getSeed()), octaves);
         SimplexOctaveGenerator simplex_gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 5);
-        simplex_gen.setScale(0.005D);
+        SimplexNoiseGenerate insimp_gen = new SimplexNoiseGenerate(world.getSeed());
+                simplex_gen.setScale(0.005D);
         per_ter_gen.setScale(0.01D);
         per_ter_gen0.setScale(0.1D);
 
@@ -41,14 +44,19 @@ public class CCGen extends ChunkGenerator {
 
         for (int X = 0; X < 16; X++) {
             for (int Z = 0; Z < 16; Z++) {
+
                 biomeHandler = simplex_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true);
-                curBiH = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D
+                /*curBiH = (int) ((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D
                         + 30D);
                 curBiH0 = (int) (((per_ter_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency, 0.5D, true) + 1) * 40D
                         + 30D)
+                        + (per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency / 2, 0.1D, true) * 20D));*/
+                curBiH = (int) ((insimp_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z) + 1) * 40D + 30D);
+                
+                curBiH0 = (int) (((insimp_gen.noise(chunkX * 16 + X, chunkZ * 16 + Z) + 1) * 40D + 30D)
                         + (per_ter_gen0.noise(chunkX * 16 + X, chunkZ * 16 + Z, frequency / 2, 0.1D, true) * 20D));
                 currentHeight = curBiH;
-                if (Math.abs(biomeHandler) >= 0.1) {
+                if (biomeHandler >= 0.0) {
                     biome.setBiome(X, Z, Biome.PLAINS);
                 } else {
                     biome.setBiome(X, Z, Biome.OCEAN);
