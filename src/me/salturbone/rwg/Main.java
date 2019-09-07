@@ -15,6 +15,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spongepowered.noise.Utils;
 import org.spongepowered.noise.module.source.Perlin;
@@ -58,21 +59,11 @@ public class Main extends JavaPlugin implements Listener {
             int octaves = 5;
             double frequency = 0.05D;
 
-            if (getFromArgs(args, "f") != null) {
-                frequency = Double.valueOf(getFromArgs(args, "f"));
-            }
-
-            if (getFromArgs(args, "s") != null) {
-                seed = Long.valueOf(getFromArgs(args, "s"));
-            }
-            if (getFromArgs(args, "o") != null) {
-                octaves = Integer.valueOf(getFromArgs(args, "o"));
-            }
             if (Bukkit.getWorld("QadrYerleri") != null) {
                 deleteWorld("QadrYerleri");
             }
             WorldCreator wc = new WorldCreator("QadrYerleri");
-            wc.generator(new CCGen(frequency, octaves));
+            wc.generator(new CCGen());
             wc.seed(seed);
             World world = getServer().createWorld(wc);
             world.setSpawnLocation(world.getSpawnLocation().add(0, 30, 0));
@@ -320,5 +311,10 @@ public class Main extends JavaPlugin implements Listener {
             x++;
         }
         return locs;
+    }
+
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        return new CCGen();
     }
 }

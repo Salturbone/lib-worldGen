@@ -12,6 +12,8 @@ public class SimplexNoiseGenerate {
     Random u_seed;
     short[] seeded,perm,permMod12;
 
+    double scale = 0.001D;
+
     final double F2 = 0.5*(Math.sqrt(3.0)-1.0);
     final double G2 = (3.0-Math.sqrt(3.0))/6.0;
     final double F3 = 1.0/3.0;
@@ -22,6 +24,10 @@ public class SimplexNoiseGenerate {
         u_seed = new Random(seed);
         seeded = Randomized();
         CalculatePerms();
+    }
+
+    public void setScale(double d) {
+        scale = d;
     }
 
     public long getSeed() {
@@ -35,7 +41,8 @@ public class SimplexNoiseGenerate {
     }
 
     // 2D simplex noise
-    public double noise(double xin, double yin) {
+    public double noise(double xan, double yan) {
+        double xin = xan * scale, yin = yan * scale;
         double n0, n1, n2; // Noise contributions from the three corners
         // Skew the input space to determine which simplex cell we're in
         double s = (xin + yin) * F2; // Hairy factor for 2D
@@ -96,7 +103,8 @@ public class SimplexNoiseGenerate {
 
 
     // 3D simplex noise
-    public double noise(double xin, double yin, double zin) {
+    public double noise(double xan, double yan, double zan) {
+        double xin = xan * scale, yin = yan * scale, zin = zan * scale;
         double n0, n1, n2, n3; // Noise contributions from the four corners
         // Skew the input space to determine which simplex cell we're in
         double s = (xin + yin + zin) * F3; // Very nice and simple skew factor for 3D
@@ -243,8 +251,8 @@ public class SimplexNoiseGenerate {
 
     //to create and shuffle for seeded operations
     private short[] Randomized() {
-        short[] a = new short[255];
-        for (short i = 0; i < 255; i++) {
+        short[] a = new short[256];
+        for (short i = 0; i < 256; i++) {
             a[i] = i;
         }
 
